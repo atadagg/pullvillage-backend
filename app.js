@@ -18,6 +18,11 @@ app.use('/users', userRoutes);
 app.use('/driver-requests', driverRequestRoutes);
 app.use('/passenger-requests', passengerRequestRoutes);
 
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 const PORT = process.env.PORT || 3000;
 
 sequelize.sync().then(() => {
