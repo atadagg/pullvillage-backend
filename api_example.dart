@@ -1,7 +1,7 @@
  import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-const String baseUrl = 'http://localhost:3000'; // Change if running on a device/emulator
+const String baseUrl = 'http://104.248.206.1';
 
 // USER ENDPOINTS
 Future<void> createUser() async {
