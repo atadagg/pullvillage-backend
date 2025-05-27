@@ -7,8 +7,8 @@ const PassengerRequest = sequelize.define('PassengerRequest', {
     primaryKey: true,
     autoIncrement: true,
   },
-  userId: {
-    type: DataTypes.INTEGER,
+  firebaseUid: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   location: {
@@ -43,7 +43,8 @@ const PassengerRequest = sequelize.define('PassengerRequest', {
 // Define association
 PassengerRequest.associate = (models) => {
   PassengerRequest.belongsTo(models.User, {
-    foreignKey: 'userId',
+    foreignKey: 'firebaseUid',
+    targetKey: 'firebaseUid',
     as: 'user'
   });
 };

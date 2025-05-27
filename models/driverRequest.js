@@ -7,8 +7,8 @@ const DriverRequest = sequelize.define('DriverRequest', {
     primaryKey: true,
     autoIncrement: true,
   },
-  userId: {
-    type: DataTypes.INTEGER,
+  firebaseUid: {
+    type: DataTypes.STRING,
     allowNull: false,
   },
   location: {
@@ -35,7 +35,8 @@ const DriverRequest = sequelize.define('DriverRequest', {
 // Define association
 DriverRequest.associate = (models) => {
   DriverRequest.belongsTo(models.User, {
-    foreignKey: 'userId',
+    foreignKey: 'firebaseUid',
+    targetKey: 'firebaseUid',
     as: 'user'
   });
 };

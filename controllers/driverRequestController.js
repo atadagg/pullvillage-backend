@@ -3,11 +3,11 @@ const User = require('../models/user');
 
 exports.submitDriverRequest = async (req, res) => {
   try {
-    const { userId, location, fromOzu, datetime, offset } = req.body;
-    if (!userId || !location || fromOzu === undefined || !datetime || offset === undefined) {
+    const { firebaseUid, location, fromOzu, datetime, offset } = req.body;
+    if (!firebaseUid || !location || fromOzu === undefined || !datetime || offset === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const request = await DriverRequest.create({ userId, location, fromOzu, datetime, offset });
+    const request = await DriverRequest.create({ firebaseUid, location, fromOzu, datetime, offset });
     res.status(201).json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });

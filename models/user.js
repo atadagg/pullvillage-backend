@@ -32,12 +32,14 @@ const User = sequelize.define('User', {
 // Define associations
 User.associate = (models) => {
   User.hasMany(models.DriverRequest, {
-    foreignKey: 'userId',
+    foreignKey: 'firebaseUid',
+    sourceKey: 'firebaseUid',
     as: 'driverRequests'
   });
   
   User.hasMany(models.PassengerRequest, {
-    foreignKey: 'userId',
+    foreignKey: 'firebaseUid',
+    sourceKey: 'firebaseUid',
     as: 'passengerRequests'
   });
 };

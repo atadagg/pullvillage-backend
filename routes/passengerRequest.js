@@ -8,7 +8,7 @@ router.use(authenticateToken);
 
 router.post('/', passengerRequestController.submitPassengerRequest);
 router.delete('/:id', passengerRequestController.deletePassengerRequest);
-router.get('/:userId', passengerRequestController.getPassengerTaxiRequest);
+router.get('/:firebaseUid', passengerRequestController.getPassengerTaxiRequest);
 router.get('/', passengerRequestController.getPassengerRequestList);
 
 module.exports = router; 

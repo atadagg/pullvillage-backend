@@ -16,6 +16,12 @@ class ApiRoutes {
     return null;
   }
 
+  // Get current user's Firebase UID
+  String? _getFirebaseUid() {
+    User? user = _auth.currentUser;
+    return user?.uid;
+  }
+
   // ==================== AUTH ROUTES ====================
   
   /// Create anonymous Firebase user
@@ -86,7 +92,6 @@ class ApiRoutes {
 
   /// Create driver request
   Future<ApiResponse<DriverRequest>> createDriverRequest({
-    required int userId,
     required String location,
     required bool fromOzu,
     required DateTime datetime,
@@ -94,7 +99,10 @@ class ApiRoutes {
   }) async {
     try {
       String? token = await _getToken();
+      String? firebaseUid = _getFirebaseUid();
+      
       if (token == null) return ApiResponse.error('No authentication token');
+      if (firebaseUid == null) return ApiResponse.error('No Firebase UID');
 
       final response = await http.post(
         Uri.parse('$baseUrl/driver-requests'),
@@ -103,7 +111,7 @@ class ApiRoutes {
           'Authorization': 'Bearer $token',
         },
         body: json.encode({
-          'userId': userId,
+          'firebaseUid': firebaseUid,
           'location': location,
           'fromOzu': fromOzu,
           'datetime': datetime.toIso8601String(),
@@ -168,7 +176,6 @@ class ApiRoutes {
 
   /// Create passenger request
   Future<ApiResponse<PassengerRequest>> createPassengerRequest({
-    required int userId,
     required String location,
     required bool fromOzu,
     required DateTime datetime,
@@ -178,7 +185,10 @@ class ApiRoutes {
   }) async {
     try {
       String? token = await _getToken();
+      String? firebaseUid = _getFirebaseUid();
+      
       if (token == null) return ApiResponse.error('No authentication token');
+      if (firebaseUid == null) return ApiResponse.error('No Firebase UID');
 
       final response = await http.post(
         Uri.parse('$baseUrl/passenger-requests'),
@@ -187,7 +197,7 @@ class ApiRoutes {
           'Authorization': 'Bearer $token',
         },
         body: json.encode({
-          'userId': userId,
+          'firebaseUid': firebaseUid,
           'location': location,
           'fromOzu': fromOzu,
           'datetime': datetime.toIso8601String(),
@@ -230,14 +240,14 @@ class ApiRoutes {
     }
   }
 
-  /// Get passenger request by user ID
-  Future<ApiResponse<PassengerRequestWithUser>> getPassengerRequestByUserId(int userId) async {
+  /// Get passenger request by Firebase UID
+  Future<ApiResponse<PassengerRequestWithUser>> getPassengerRequestByFirebaseUid(String firebaseUid) async {
     try {
       String? token = await _getToken();
       if (token == null) return ApiResponse.error('No authentication token');
 
       final response = await http.get(
-        Uri.parse('$baseUrl/passenger-requests/$userId'),
+        Uri.parse('$baseUrl/passenger-requests/$firebaseUid'),
         headers: {'Authorization': 'Bearer $token'},
       );
 
@@ -248,6 +258,14 @@ class ApiRoutes {
     } catch (e) {
       return ApiResponse.error(e.toString());
     }
+  }
+
+  /// Get current user's passenger request
+  Future<ApiResponse<PassengerRequestWithUser>> getCurrentUserPassengerRequest() async {
+    String? firebaseUid = _getFirebaseUid();
+    if (firebaseUid == null) return ApiResponse.error('No Firebase UID');
+    
+    return getPassengerRequestByFirebaseUid(firebaseUid);
   }
 
   /// Delete passenger request
@@ -348,7 +366,7 @@ class UserProfile {
 
 class DriverRequest {
   final int id;
-  final int userId;
+  final String firebaseUid;
   final String location;
   final bool fromOzu;
   final DateTime datetime;
@@ -356,7 +374,7 @@ class DriverRequest {
 
   DriverRequest({
     required this.id,
-    required this.userId,
+    required this.firebaseUid,
     required this.location,
     required this.fromOzu,
     required this.datetime,
@@ -366,7 +384,7 @@ class DriverRequest {
   factory DriverRequest.fromJson(Map<String, dynamic> json) {
     return DriverRequest(
       id: json['id'],
-      userId: json['userId'],
+      firebaseUid: json['firebaseUid'],
       location: json['location'],
       fromOzu: json['fromOzu'],
       datetime: DateTime.parse(json['datetime']),
@@ -412,7 +430,7 @@ class DriverRequestWithUser {
 
 class PassengerRequest {
   final int id;
-  final int userId;
+  final String firebaseUid;
   final String location;
   final bool fromOzu;
   final DateTime datetime;
@@ -422,7 +440,7 @@ class PassengerRequest {
 
   PassengerRequest({
     required this.id,
-    required this.userId,
+    required this.firebaseUid,
     required this.location,
     required this.fromOzu,
     required this.datetime,
@@ -434,7 +452,7 @@ class PassengerRequest {
   factory PassengerRequest.fromJson(Map<String, dynamic> json) {
     return PassengerRequest(
       id: json['id'],
-      userId: json['userId'],
+      firebaseUid: json['firebaseUid'],
       location: json['location'],
       fromOzu: json['fromOzu'],
       datetime: DateTime.parse(json['datetime']),
@@ -575,7 +593,6 @@ class ApiUsageExamples {
   /// Example: Create a driver request
   Future<void> createDriverRequestExample() async {
     final result = await api.createDriverRequest(
-      userId: 1,
       location: Location.cekmekoy.value,
       fromOzu: true,
       datetime: DateTime.now().add(Duration(hours: 2)),
@@ -608,7 +625,6 @@ class ApiUsageExamples {
   /// Example: Create a passenger request
   Future<void> createPassengerRequestExample() async {
     final result = await api.createPassengerRequest(
-      userId: 1,
       location: Location.sabiha.value,
       fromOzu: false,
       datetime: DateTime.now().add(Duration(hours: 3)),

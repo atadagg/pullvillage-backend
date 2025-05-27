@@ -3,11 +3,11 @@ const User = require('../models/user');
 
 exports.submitPassengerRequest = async (req, res) => {
   try {
-    const { userId, location, fromOzu, datetime, offset, taxi, carpool } = req.body;
-    if (!userId || !location || fromOzu === undefined || !datetime || offset === undefined || taxi === undefined || carpool === undefined) {
+    const { firebaseUid, location, fromOzu, datetime, offset, taxi, carpool } = req.body;
+    if (!firebaseUid || !location || fromOzu === undefined || !datetime || offset === undefined || taxi === undefined || carpool === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const request = await PassengerRequest.create({ userId, location, fromOzu, datetime, offset, taxi, carpool });
+    const request = await PassengerRequest.create({ firebaseUid, location, fromOzu, datetime, offset, taxi, carpool });
     res.status(201).json(request);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -27,9 +27,9 @@ exports.deletePassengerRequest = async (req, res) => {
 
 exports.getPassengerTaxiRequest = async (req, res) => {
   try {
-    const { userId } = req.params;
+    const { firebaseUid } = req.params;
     const request = await PassengerRequest.findOne({ 
-      where: { userId },
+      where: { firebaseUid },
       include: [{
         model: User,
         as: 'user',
