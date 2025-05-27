@@ -32,4 +32,12 @@ const DriverRequest = sequelize.define('DriverRequest', {
   timestamps: false,
 });
 
+// Define association
+DriverRequest.associate = (models) => {
+  DriverRequest.belongsTo(models.User, {
+    foreignKey: 'userId',
+    as: 'user'
+  });
+};
+
 module.exports = DriverRequest; 

@@ -1,4 +1,5 @@
 const DriverRequest = require('../models/driverRequest');
+const User = require('../models/user');
 
 exports.submitDriverRequest = async (req, res) => {
   try {
@@ -26,8 +27,28 @@ exports.deleteDriverRequest = async (req, res) => {
 
 exports.getDriverRequestList = async (req, res) => {
   try {
-    const requests = await DriverRequest.findAll();
-    res.json(requests);
+    const requests = await DriverRequest.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['name', 'surname', 'phoneNumber']
+      }],
+      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset']
+    });
+
+    // Format the response to flatten user data
+    const formattedRequests = requests.map(request => ({
+      id: request.id,
+      location: request.location,
+      fromOzu: request.fromOzu,
+      datetime: request.datetime,
+      offset: request.offset,
+      name: request.user.name,
+      surname: request.user.surname,
+      phoneNumber: request.user.phoneNumber
+    }));
+
+    res.json(formattedRequests);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

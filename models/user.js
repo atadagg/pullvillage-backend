@@ -7,9 +7,10 @@ const User = sequelize.define('User', {
     primaryKey: true,
     autoIncrement: true,
   },
-  firebaseId: {
+  firebaseUid: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,
   },
   name: {
     type: DataTypes.STRING,
@@ -27,5 +28,18 @@ const User = sequelize.define('User', {
   tableName: 'users',
   timestamps: false,
 });
+
+// Define associations
+User.associate = (models) => {
+  User.hasMany(models.DriverRequest, {
+    foreignKey: 'userId',
+    as: 'driverRequests'
+  });
+  
+  User.hasMany(models.PassengerRequest, {
+    foreignKey: 'userId',
+    as: 'passengerRequests'
+  });
+};
 
 module.exports = User; 

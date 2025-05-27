@@ -4,10 +4,8 @@ const sequelize = require('./config');
 const https = require('https');
 const fs = require('fs');
 
-// Models (ensure tables are created)
-require('./models/user');
-require('./models/driverRequest');
-require('./models/passengerRequest');
+// Models (ensure tables are created and associations are set up)
+const models = require('./models');
 
 const app = express();
 app.use(bodyParser.json());
@@ -16,6 +14,9 @@ app.use(bodyParser.json());
 const userRoutes = require('./routes/user');
 const driverRequestRoutes = require('./routes/driverRequest');
 const passengerRequestRoutes = require('./routes/passengerRequest');
+const authRoutes = require('./routes/auth');
+
+app.use('/auth', authRoutes);
 app.use('/users', userRoutes);
 app.use('/driver-requests', driverRequestRoutes);
 app.use('/passenger-requests', passengerRequestRoutes);

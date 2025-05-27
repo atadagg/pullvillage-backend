@@ -1,4 +1,5 @@
 const PassengerRequest = require('../models/passengerRequest');
+const User = require('../models/user');
 
 exports.submitPassengerRequest = async (req, res) => {
   try {
@@ -27,9 +28,33 @@ exports.deletePassengerRequest = async (req, res) => {
 exports.getPassengerTaxiRequest = async (req, res) => {
   try {
     const { userId } = req.params;
-    const request = await PassengerRequest.findOne({ where: { userId } });
+    const request = await PassengerRequest.findOne({ 
+      where: { userId },
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['name', 'surname', 'phoneNumber']
+      }],
+      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset', 'taxi', 'carpool']
+    });
+    
     if (!request) return res.status(404).json({ error: 'Request not found' });
-    res.json(request);
+    
+    // Format the response to flatten user data
+    const formattedRequest = {
+      id: request.id,
+      location: request.location,
+      fromOzu: request.fromOzu,
+      datetime: request.datetime,
+      offset: request.offset,
+      taxi: request.taxi,
+      carpool: request.carpool,
+      name: request.user.name,
+      surname: request.user.surname,
+      phoneNumber: request.user.phoneNumber
+    };
+    
+    res.json(formattedRequest);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -37,8 +62,30 @@ exports.getPassengerTaxiRequest = async (req, res) => {
 
 exports.getPassengerRequestList = async (req, res) => {
   try {
-    const requests = await PassengerRequest.findAll();
-    res.json(requests);
+    const requests = await PassengerRequest.findAll({
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['name', 'surname', 'phoneNumber']
+      }],
+      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset', 'taxi', 'carpool']
+    });
+
+    // Format the response to flatten user data
+    const formattedRequests = requests.map(request => ({
+      id: request.id,
+      location: request.location,
+      fromOzu: request.fromOzu,
+      datetime: request.datetime,
+      offset: request.offset,
+      taxi: request.taxi,
+      carpool: request.carpool,
+      name: request.user.name,
+      surname: request.user.surname,
+      phoneNumber: request.user.phoneNumber
+    }));
+
+    res.json(formattedRequests);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

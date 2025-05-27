@@ -40,4 +40,12 @@ const PassengerRequest = sequelize.define('PassengerRequest', {
   timestamps: false,
 });
 
+// Define association
+PassengerRequest.associate = (models) => {
+  PassengerRequest.belongsTo(models.User, {
+    foreignKey: 'userId',
+    as: 'user'
+  });
+};
+
 module.exports = PassengerRequest; 

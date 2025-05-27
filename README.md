@@ -1,4 +1,4 @@
 # pullvillage-backend
 
 
-TODO: ADAR FIREBASE SETUP
+TODO: ADAR FIREBASE SETUP, Middleware authentication
