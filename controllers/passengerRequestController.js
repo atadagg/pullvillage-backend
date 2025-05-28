@@ -1,5 +1,6 @@
 const PassengerRequest = require('../models/passengerRequest');
 const User = require('../models/user');
+const { Op } = require('sequelize'); // Import Op for operators
 
 exports.submitPassengerRequest = async (req, res) => {
   try {
@@ -29,7 +30,12 @@ exports.getPassengerTaxiRequest = async (req, res) => {
   try {
     const { firebaseUid } = req.params;
     const request = await PassengerRequest.findOne({ 
-      where: { firebaseUid },
+      where: { 
+        firebaseUid,
+        datetime: {
+          [Op.gte]: new Date() // Only get requests where datetime is greater than or equal to now
+        }
+      },
       include: [{
         model: User,
         as: 'user',
@@ -38,7 +44,7 @@ exports.getPassengerTaxiRequest = async (req, res) => {
       attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset', 'taxi', 'carpool']
     });
     
-    if (!request) return res.status(404).json({ error: 'Request not found' });
+    if (!request) return res.status(404).json({ error: 'Request not found or has passed' });
     
     // Format the response to flatten user data
     const formattedRequest = {
@@ -63,12 +69,18 @@ exports.getPassengerTaxiRequest = async (req, res) => {
 exports.getPassengerRequestList = async (req, res) => {
   try {
     const requests = await PassengerRequest.findAll({
+      where: {
+        datetime: {
+          [Op.gte]: new Date() // Only get requests where datetime is greater than or equal to now
+        }
+      },
       include: [{
         model: User,
         as: 'user',
         attributes: ['name', 'surname', 'phoneNumber']
       }],
-      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset', 'taxi', 'carpool']
+      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset', 'taxi', 'carpool'],
+      order: [['datetime', 'ASC']] // Optional: Order by soonest first
     });
 
     // Format the response to flatten user data

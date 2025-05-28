@@ -1,5 +1,6 @@
 const DriverRequest = require('../models/driverRequest');
 const User = require('../models/user');
+const { Op } = require('sequelize');
 
 exports.submitDriverRequest = async (req, res) => {
   try {
@@ -28,15 +29,20 @@ exports.deleteDriverRequest = async (req, res) => {
 exports.getDriverRequestList = async (req, res) => {
   try {
     const requests = await DriverRequest.findAll({
+      where: {
+        datetime: {
+          [Op.gte]: new Date()
+        }
+      },
       include: [{
         model: User,
         as: 'user',
         attributes: ['name', 'surname', 'phoneNumber']
       }],
-      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset']
+      attributes: ['id', 'location', 'fromOzu', 'datetime', 'offset'],
+      order: [['datetime', 'ASC']]
     });
 
-    // Format the response to flatten user data
     const formattedRequests = requests.map(request => ({
       id: request.id,
       location: request.location,
